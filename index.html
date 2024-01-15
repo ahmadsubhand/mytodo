@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>To Do List</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Lemon&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap" rel="stylesheet">
+
+  <script src="https://kit.fontawesome.com/500fe0f482.js" crossorigin="anonymous"></script>
+
+</head>
+<body>
+  <div class="wrapper">
+    <h1><i class="fa-solid fa-clipboard-list"></i> MyTODO <i class="fa-solid fa-clipboard-list"></i></h1>
+    <form>
+      <input type="text" name="input_task">
+      <button>Add</button>
+    </form>
+  
+    <ul id="list_task">
+      <!-- `<li>
+        <span class="${task.done ? 'done' : ''}">${task.name}</span> 
+        <i class="fa-solid fa-check" onclick="doneTask(this)"></i> 
+        <i class="fa-solid fa-xmark" onclick="deleteTask(this)"></i> 
+      </li>`; -->
+    </ul>
+  </div>
+
+  <script>
+    const listTask = document.querySelector('#list_task');
+    const listForm = document.forms;
+
+    // Load task
+    let arrayTask = [];
+    const taskFromStorage = JSON.parse(localStorage.getItem('task'));
+    if (taskFromStorage) {
+      arrayTask = taskFromStorage;
+      listTask.innerHTML =
+        arrayTask.reduce((result, task) => `${result}${createTask(task)}`, '');
+    }
+
+    // Save task
+    window.addEventListener('beforeunload', function(event) {
+      localStorage.setItem('task', JSON.stringify(arrayTask));
+    });
+          
+    // Task logic
+    listForm[0].addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const inputTask = listForm[0].elements['input_task'];
+      arrayTask.unshift({
+        name: inputTask.value,
+        done: false
+      });
+      listTask.insertAdjacentHTML('afterbegin', createTask(arrayTask[0]));
+
+      inputTask.value = "";
+    });
+
+    // Function
+    function createTask(task) {
+      return `<li>
+                <span class="${task.done ? 'done' : ''}">${task.name}</span> 
+                <i class="fa-solid fa-circle-check" onclick="doneTask(this)"></i> 
+                <i class="fa-solid fa-circle-xmark" onclick="deleteTask(this)"></i>
+              </li>`;
+    }
+
+    function doneTask(element) {
+      element.previousElementSibling.classList.toggle('done');
+      for (let i in listTask.children) {
+        if (listTask.children[i] === element.parentElement) {
+          arrayTask[i].done = true;
+          break;
+        }
+      }
+    }
+
+    function deleteTask(element) {
+      for (let i in listTask.children) {
+        if (listTask.children[i] === element.parentElement) {
+          arrayTask.splice(i, 1);
+          break;
+        }
+      }
+      element.parentElement.remove();
+    }
+
+  </script>
+</body>
+</html>
