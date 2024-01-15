@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>To Do List</title>
+  <title>Create list at MyTODO!</title>
 
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,16 +42,11 @@
       listTask.innerHTML =
         arrayTask.reduce((result, task) => `${result}${createTask(task)}`, '');
     }
-
-    // Save task
-    window.addEventListener('beforeunload', function(event) {
-      localStorage.setItem('task', JSON.stringify(arrayTask));
-    });
-          
-    // Task logic
+    
+    // Create task
     listForm[0].addEventListener('submit', function(event) {
       event.preventDefault();
-
+      
       const inputTask = listForm[0].elements['input_task'];
       arrayTask.unshift({
         name: inputTask.value,
@@ -60,9 +55,15 @@
       listTask.insertAdjacentHTML('afterbegin', createTask(arrayTask[0]));
 
       inputTask.value = "";
-    });
 
+      saveTask();
+    });
+    
     // Function
+    function saveTask() {
+      localStorage.setItem('task', JSON.stringify(arrayTask));
+    }
+
     function createTask(task) {
       return `<li>
                 <span class="${task.done ? 'done' : ''}">${task.name}</span> 
@@ -73,12 +74,19 @@
 
     function doneTask(element) {
       element.previousElementSibling.classList.toggle('done');
+
       for (let i in listTask.children) {
         if (listTask.children[i] === element.parentElement) {
-          arrayTask[i].done = true;
+          if (arrayTask[i].done) {
+            arrayTask[i].done = false;
+          } else {
+            arrayTask[i].done = true;
+          }
           break;
         }
       }
+
+      saveTask();
     }
 
     function deleteTask(element) {
@@ -88,7 +96,10 @@
           break;
         }
       }
+
       element.parentElement.remove();
+
+      saveTask();
     }
 
   </script>
